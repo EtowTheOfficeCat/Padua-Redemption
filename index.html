@@ -1,0 +1,608 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Padua Redemption</title>
+  <style>
+    :root{
+      --bg:#7a7a7a;          /* page grey */
+      --panel:#f3f3f3;
+      --ink:#161616;
+      --muted:#5a5a5a;
+      --border:#cfcfcf;
+      --shadow:rgba(0,0,0,.18);
+      --ok:#0b6b3a;
+      --bad:#8a1f1f;
+    }
+    *{box-sizing:border-box}
+    body{
+      margin:0;
+      min-height:100vh;
+      display:grid;
+      place-items:center;
+      padding:24px;
+      background:var(--bg);
+      font-family:system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif;
+      color:var(--ink);
+    }
+    .wrap{width:min(900px,100%); text-align:center;}
+    h1{
+      margin:0 0 14px;
+      font-size:clamp(28px,4vw,42px);
+      letter-spacing:.6px;
+      text-shadow:0 1px 0 rgba(255,255,255,.2);
+    }
+    .card{
+      background:var(--panel);
+      border:1px solid var(--border);
+      border-radius:18px;
+      box-shadow:0 10px 30px var(--shadow);
+      padding:18px;
+      text-align:left;
+    }
+    .topbar{
+      display:flex;
+      gap:12px;
+      align-items:stretch;
+      justify-content:space-between;
+      flex-wrap:wrap;
+      margin-bottom:12px;
+    }
+    .pill{
+      flex:1 1 260px;
+      background:#fff;
+      border:1px solid var(--border);
+      border-radius:14px;
+      padding:10px 12px;
+      min-height:54px;
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:10px;
+    }
+    .pill strong{font-weight:800}
+    .sub{color:var(--muted); font-size:13px}
+    .mono{font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;}
+    .grid{
+      display:grid;
+      grid-template-columns: 1.25fr 0.75fr;
+      gap:12px;
+    }
+    @media (max-width: 820px){
+      .grid{grid-template-columns:1fr}
+    }
+    .panel{
+      background:#fff;
+      border:1px solid var(--border);
+      border-radius:16px;
+      padding:14px;
+    }
+    .label{
+      font-size:12px;
+      letter-spacing:.12em;
+      text-transform:uppercase;
+      color:var(--muted);
+      margin:0 0 8px;
+    }
+    .cipherBox{
+      border:1px dashed #bfbfbf;
+      border-radius:14px;
+      padding:12px;
+      background:#fafafa;
+      min-height:92px;
+      display:flex;
+      align-items:center;
+    }
+    .cipherText{
+      font-size:18px;
+      line-height:1.3;
+      word-break:break-word;
+    }
+    .controls{
+      display:flex;
+      flex-direction:column;
+      gap:10px;
+    }
+    .row{
+      display:flex;
+      gap:10px;
+      flex-wrap:wrap;
+      align-items:center;
+    }
+    input[type="text"]{
+      flex:1 1 260px;
+      padding:12px 12px;
+      border-radius:999px;
+      border:1px solid var(--border);
+      outline:none;
+      font-size:15px;
+    }
+    input[type="range"]{
+      width:100%;
+      accent-color:#444;
+    }
+    button{
+      border:1px solid var(--border);
+      background:#fff;
+      padding:10px 14px;
+      border-radius:999px;
+      cursor:pointer;
+      font-weight:700;
+      transition:transform .08s ease, background .12s ease;
+      white-space:nowrap;
+    }
+    button:hover{background:#f6f6f6}
+    button:active{transform:scale(.98)}
+    button.primary{
+      border-color:#bdbdbd;
+      background:#fefefe;
+    }
+    .msg{
+      margin-top:10px;
+      padding:10px 12px;
+      border-radius:14px;
+      border:1px solid var(--border);
+      background:#fff;
+      font-size:14px;
+    }
+    .msg.ok{border-color: rgba(11,107,58,.35); background:rgba(11,107,58,.06)}
+    .msg.bad{border-color: rgba(138,31,31,.35); background:rgba(138,31,31,.06)}
+    .hint{
+      display:flex;
+      gap:10px;
+      align-items:center;
+      justify-content:space-between;
+      flex-wrap:wrap;
+      margin-top:10px;
+      padding:10px 12px;
+      border-radius:14px;
+      border:1px solid var(--border);
+      background:#ffffff;
+    }
+    .kbd{
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      font-size:12px;
+      border:1px solid #d5d5d5;
+      background:#f7f7f7;
+      border-bottom-width:2px;
+      padding:2px 6px;
+      border-radius:8px;
+    }
+    .preview{
+      margin-top:10px;
+      border-radius:14px;
+      border:1px solid var(--border);
+      background:#fff;
+      padding:12px;
+    }
+    .preview .cipherText{font-size:16px}
+    .footerNote{
+      margin-top:10px;
+      font-size:12px;
+      color:rgba(0,0,0,.65);
+      text-align:center;
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <h1>Padua Redemption</h1>
+
+    <div class="card" role="application" aria-label="Spy Decryption Minigame">
+      <div class="topbar">
+        <div class="pill">
+          <div>
+            <div><strong>Clearance</strong> <span class="sub" id="rank">Field Agent</span></div>
+            <div class="sub">Score: <span id="score">0</span> • Streak: <span id="streak">0</span></div>
+          </div>
+          <div class="sub">
+            Round <span id="round">1</span>/∞
+          </div>
+        </div>
+
+        <div class="pill">
+          <div>
+            <div><strong>Intercept Timer</strong></div>
+            <div class="sub">Time left: <span id="timeLeft">45</span>s</div>
+          </div>
+          <div class="sub mono" id="timerBar" aria-hidden="true">████████████████</div>
+        </div>
+
+        <div class="pill">
+          <div>
+            <div><strong>Tools</strong></div>
+            <div class="sub">Caesar shift + analyst guess</div>
+          </div>
+          <div class="sub">
+            Attempts: <span id="attemptsLeft">3</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="grid">
+        <!-- LEFT: Intercept -->
+        <div class="panel">
+          <div class="label">Intercepted Transmission</div>
+          <div class="cipherBox">
+            <div class="cipherText mono" id="cipherText">…</div>
+          </div>
+
+          <div class="hint">
+            <div class="sub">
+              Hint: <strong>Caesar cipher</strong> (letters shifted). Use the slider to try shifts.
+            </div>
+            <div class="sub">
+              Shortcuts: <span class="kbd">←</span>/<span class="kbd">→</span> shift • <span class="kbd">Enter</span> submit
+            </div>
+          </div>
+
+          <div class="preview">
+            <div class="label">Live Decryption Preview</div>
+            <div class="cipherText mono" id="previewText">…</div>
+            <div class="sub" style="margin-top:8px;">
+              Current shift: <strong id="shiftLabel">0</strong>
+            </div>
+            <input id="shiftSlider" type="range" min="0" max="25" value="0" />
+          </div>
+
+          <div id="feedback" class="msg" style="display:none;"></div>
+        </div>
+
+        <!-- RIGHT: Input -->
+        <div class="panel">
+          <div class="label">Analyst Console</div>
+
+          <div class="controls">
+            <div class="row">
+              <input id="answer" type="text" placeholder="Type the decrypted message (exact words)..." autocomplete="off" />
+            </div>
+            <div class="row">
+              <button class="primary" id="submitBtn" type="button">Submit Decryption</button>
+              <button id="revealHintBtn" type="button">Reveal Extra Hint</button>
+              <button id="newRoundBtn" type="button">New Intercept</button>
+            </div>
+
+            <div class="msg" id="extraHint" style="display:none;">
+              <div><strong>Extra Hint:</strong> <span id="extraHintText"></span></div>
+              <div class="sub" style="margin-top:6px;">(Using a hint costs 1 attempt.)</div>
+            </div>
+
+            <div class="msg">
+              <div class="sub">
+                Rules:
+                <ul style="margin:8px 0 0 18px; padding:0;">
+                  <li>3 attempts per intercept.</li>
+                  <li>Beat the timer for maximum points.</li>
+                  <li>Exact match required (punctuation ignored).</li>
+                </ul>
+              </div>
+            </div>
+
+            <div class="row" style="justify-content:space-between;">
+              <button id="resetBtn" type="button">Reset Game</button>
+              <span class="sub">Tip: copy the preview into the input and fine-tune.</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="footerNote">Padua Division • Cryptanalysis Training Module • Local single-player</div>
+    </div>
+  </div>
+
+  <script>
+    (() => {
+      // --- Message pool (plaintext), plus a little "extra hint" for each.
+      const POOL = [
+        { text: "MEET AT THE OLD BRIDGE AT MIDNIGHT", hint: "Location + time" },
+        { text: "THE PACKAGE IS UNDER THE THIRD FLOOR TILE", hint: "Hidden stash" },
+        { text: "BURN THE FILES AND SWITCH SAFEHOUSES", hint: "Operational security" },
+        { text: "THE MOLE IS INSIDE OUR COMMUNICATIONS TEAM", hint: "Internal threat" },
+        { text: "USE THE RED PHONE ONLY AFTER SUNSET", hint: "Comms protocol" },
+        { text: "DELIVER THE KEYCARD TO PADUA STATION", hint: "Transit drop" },
+        { text: "TRUST NO ONE EXCEPT THE NIGHT WATCHMAN", hint: "Single contact" },
+        { text: "THE PASSPHRASE IS SILENT RIVER", hint: "Contains two words" },
+        { text: "ABORT MISSION IF THE LIGHTS GO OUT", hint: "Abort condition" },
+        { text: "THE TARGET LEAVES AT DAWN THROUGH GATE SEVEN", hint: "Departure route" },
+      ];
+
+      // --- DOM
+      const cipherTextEl = document.getElementById("cipherText");
+      const previewTextEl = document.getElementById("previewText");
+      const shiftSlider = document.getElementById("shiftSlider");
+      const shiftLabel = document.getElementById("shiftLabel");
+
+      const answerEl = document.getElementById("answer");
+      const submitBtn = document.getElementById("submitBtn");
+      const newRoundBtn = document.getElementById("newRoundBtn");
+      const resetBtn = document.getElementById("resetBtn");
+      const revealHintBtn = document.getElementById("revealHintBtn");
+
+      const feedbackEl = document.getElementById("feedback");
+      const extraHintBox = document.getElementById("extraHint");
+      const extraHintText = document.getElementById("extraHintText");
+
+      const scoreEl = document.getElementById("score");
+      const streakEl = document.getElementById("streak");
+      const rankEl = document.getElementById("rank");
+      const roundEl = document.getElementById("round");
+      const timeLeftEl = document.getElementById("timeLeft");
+      const timerBarEl = document.getElementById("timerBar");
+      const attemptsLeftEl = document.getElementById("attemptsLeft");
+
+      // --- State
+      let round = 1;
+      let score = 0;
+      let streak = 0;
+
+      let attemptsLeft = 3;
+      let timer = null;
+      let timeLeft = 45;
+
+      let activePlain = "";
+      let activeShift = 0; // used to create cipher
+      let activeHint = "";
+      let hintRevealed = false;
+      let solved = false;
+
+      // --- Helpers
+      function normalize(s) {
+        return (s || "")
+          .toUpperCase()
+          .replace(/[^A-Z0-9 ]+/g, "")  // drop punctuation
+          .replace(/\s+/g, " ")
+          .trim();
+      }
+
+      function shiftChar(ch, shift) {
+        const A = "A".charCodeAt(0);
+        const Z = "Z".charCodeAt(0);
+        const c = ch.charCodeAt(0);
+        if (c < A || c > Z) return ch;
+        const idx = c - A;
+        const out = (idx + shift) % 26;
+        return String.fromCharCode(A + out);
+      }
+
+      // Encrypt with +shift (to create cipher)
+      function caesarEncrypt(text, shift) {
+        return text.toUpperCase().split("").map(ch => shiftChar(ch, shift)).join("");
+      }
+
+      // Decrypt cipher with -shift (viewer slider)
+      function caesarDecrypt(cipher, shift) {
+        const s = (26 - (shift % 26)) % 26; // convert to forward shift for decrypt
+        return cipher.split("").map(ch => shiftChar(ch, s)).join("");
+      }
+
+      function pickRandom() {
+        return POOL[Math.floor(Math.random() * POOL.length)];
+      }
+
+      function updateRank() {
+        // Simple rank tiers by score
+        let r = "Field Agent";
+        if (score >= 150) r = "Cryptanalyst";
+        if (score >= 350) r = "Intelligence Officer";
+        if (score >= 650) r = "Master Spy";
+        rankEl.textContent = r;
+      }
+
+      function showFeedback(type, text) {
+        feedbackEl.style.display = "block";
+        feedbackEl.className = "msg " + (type === "ok" ? "ok" : "bad");
+        feedbackEl.textContent = text;
+      }
+
+      function hideFeedback() {
+        feedbackEl.style.display = "none";
+        feedbackEl.textContent = "";
+        feedbackEl.className = "msg";
+      }
+
+      function setAttempts(n) {
+        attemptsLeft = n;
+        attemptsLeftEl.textContent = String(attemptsLeft);
+      }
+
+      function stopTimer() {
+        if (timer) clearInterval(timer);
+        timer = null;
+      }
+
+      function renderTimerBar() {
+        // 16 blocks bar
+        const blocks = 16;
+        const filled = Math.max(0, Math.min(blocks, Math.round((timeLeft / 45) * blocks)));
+        timerBarEl.textContent = "█".repeat(filled) + "░".repeat(blocks - filled);
+      }
+
+      function startTimer() {
+        stopTimer();
+        timeLeft = 45;
+        timeLeftEl.textContent = String(timeLeft);
+        renderTimerBar();
+
+        timer = setInterval(() => {
+          timeLeft -= 1;
+          timeLeftEl.textContent = String(timeLeft);
+          renderTimerBar();
+
+          if (timeLeft <= 0) {
+            stopTimer();
+            timeLeft = 0;
+            timeLeftEl.textContent = "0";
+            renderTimerBar();
+            handleFail("Time’s up. Intercept lost.");
+          }
+        }, 1000);
+      }
+
+      function setCipher(newCipher) {
+        cipherTextEl.textContent = newCipher;
+        const s = Number(shiftSlider.value);
+        previewTextEl.textContent = caesarDecrypt(newCipher, s);
+      }
+
+      function newIntercept() {
+        // Reset per-round state
+        solved = false;
+        hintRevealed = false;
+        extraHintBox.style.display = "none";
+        hideFeedback();
+        setAttempts(3);
+        answerEl.value = "";
+        shiftSlider.value = "0";
+        shiftLabel.textContent = "0";
+
+        const entry = pickRandom();
+        activePlain = normalize(entry.text); // keep it clean
+        activeHint = entry.hint;
+
+        // Choose shift 1..25 (avoid 0)
+        activeShift = 1 + Math.floor(Math.random() * 25);
+        const cipher = caesarEncrypt(activePlain, activeShift);
+
+        setCipher(cipher);
+        startTimer();
+      }
+
+      function scoreForWin() {
+        // Points: base 50 + time bonus + attempts bonus + streak bonus
+        const base = 50;
+        const timeBonus = timeLeft;               // up to 45
+        const attemptsBonus = attemptsLeft * 10;  // up to 30
+        const streakBonus = Math.min(streak * 5, 50);
+        return base + timeBonus + attemptsBonus + streakBonus;
+      }
+
+      function handleWin() {
+        solved = true;
+        stopTimer();
+
+        const pts = scoreForWin();
+        score += pts;
+        streak += 1;
+
+        scoreEl.textContent = String(score);
+        streakEl.textContent = String(streak);
+        updateRank();
+
+        showFeedback("ok", `Decryption confirmed. +${pts} points. (Shift used by enemy: ${activeShift})`);
+      }
+
+      function handleFail(reason) {
+        if (solved) return;
+        stopTimer();
+        solved = true; // lock this intercept as ended
+
+        // streak breaks
+        streak = 0;
+        streakEl.textContent = "0";
+
+        showFeedback("bad", `${reason} The real message was: "${activePlain}". Start a new intercept.`);
+      }
+
+      function handleAttemptUsed() {
+        setAttempts(attemptsLeft - 1);
+        if (attemptsLeft <= 0) {
+          handleFail("No attempts left.");
+        }
+      }
+
+      function submitDecryption() {
+        if (solved) return;
+
+        const guess = normalize(answerEl.value);
+        if (!guess) {
+          showFeedback("bad", "Type a decrypted message first.");
+          return;
+        }
+
+        if (guess === activePlain) {
+          handleWin();
+          return;
+        }
+
+        // Wrong answer
+        handleAttemptUsed();
+        if (!solved) {
+          showFeedback("bad", `Not a match. Attempts left: ${attemptsLeft}.`);
+        }
+      }
+
+      function revealExtraHint() {
+        if (solved) return;
+        if (hintRevealed) {
+          showFeedback("bad", "Extra hint already revealed.");
+          return;
+        }
+        if (attemptsLeft <= 0) return;
+
+        hintRevealed = true;
+        extraHintText.textContent = activeHint;
+        extraHintBox.style.display = "block";
+
+        // Hint costs 1 attempt
+        handleAttemptUsed();
+        if (!solved) showFeedback("ok", "Extra hint revealed (cost 1 attempt).");
+      }
+
+      function resetGame() {
+        stopTimer();
+        round = 1;
+        score = 0;
+        streak = 0;
+        scoreEl.textContent = "0";
+        streakEl.textContent = "0";
+        rankEl.textContent = "Field Agent";
+        roundEl.textContent = "1";
+        newIntercept();
+      }
+
+      // --- Events
+      shiftSlider.addEventListener("input", () => {
+        const s = Number(shiftSlider.value);
+        shiftLabel.textContent = String(s);
+        previewTextEl.textContent = caesarDecrypt(cipherTextEl.textContent, s);
+      });
+
+      submitBtn.addEventListener("click", submitDecryption);
+      revealHintBtn.addEventListener("click", revealExtraHint);
+
+      newRoundBtn.addEventListener("click", () => {
+        // If player solved, reward flow continues; either way, advance round and start new intercept.
+        stopTimer();
+        round += 1;
+        roundEl.textContent = String(round);
+        newIntercept();
+      });
+
+      resetBtn.addEventListener("click", resetGame);
+
+      // Keyboard shortcuts
+      window.addEventListener("keydown", (e) => {
+        if (e.key === "Enter") {
+          submitDecryption();
+          return;
+        }
+        if (e.key === "ArrowLeft" || e.key === "ArrowRight") {
+          // Avoid hijacking when typing in the answer box
+          if (document.activeElement === answerEl) return;
+          e.preventDefault();
+          const delta = e.key === "ArrowLeft" ? -1 : 1;
+          const next = Math.max(0, Math.min(25, Number(shiftSlider.value) + delta));
+          shiftSlider.value = String(next);
+          shiftLabel.textContent = String(next);
+          previewTextEl.textContent = caesarDecrypt(cipherTextEl.textContent, next);
+        }
+      });
+
+      // --- Init
+      newIntercept();
+    })();
+  </script>
+</body>
+</html>
+
