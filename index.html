@@ -1,0 +1,694 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Padua Redemption</title>
+  <style>
+    :root{
+      --bg:#7a7a7a;          /* page grey */
+      --panel:#f3f3f3;
+      --ink:#141414;
+      --muted:#5a5a5a;
+      --border:#cfcfcf;
+      --shadow:rgba(0,0,0,.18);
+      --good:#0b6b3a;
+      --bad:#8a1f1f;
+    }
+    *{box-sizing:border-box}
+    body{
+      margin:0;
+      min-height:100vh;
+      display:grid;
+      place-items:center;
+      padding:24px;
+      background:var(--bg);
+      font-family:system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif;
+      color:var(--ink);
+    }
+    .wrap{width:min(980px,100%); text-align:center;}
+    h1{
+      margin:0 0 14px;
+      font-size:clamp(28px,4vw,42px);
+      letter-spacing:.6px;
+      text-shadow:0 1px 0 rgba(255,255,255,.2);
+    }
+    .card{
+      background:var(--panel);
+      border:1px solid var(--border);
+      border-radius:18px;
+      box-shadow:0 10px 30px var(--shadow);
+      padding:18px;
+      text-align:left;
+    }
+    .topbar{
+      display:flex;
+      gap:12px;
+      flex-wrap:wrap;
+      align-items:stretch;
+      justify-content:space-between;
+      margin-bottom:12px;
+    }
+    .pill{
+      flex:1 1 260px;
+      background:#fff;
+      border:1px solid var(--border);
+      border-radius:14px;
+      padding:10px 12px;
+      min-height:54px;
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:10px;
+    }
+    .sub{color:var(--muted); font-size:13px}
+    .mono{font-family:ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,"Liberation Mono","Courier New",monospace;}
+    .grid{
+      display:grid;
+      grid-template-columns: 1.25fr 0.75fr;
+      gap:12px;
+    }
+    @media (max-width: 920px){ .grid{grid-template-columns:1fr;} }
+
+    .panel{
+      background:#fff;
+      border:1px solid var(--border);
+      border-radius:16px;
+      padding:14px;
+    }
+    .label{
+      font-size:12px;
+      letter-spacing:.12em;
+      text-transform:uppercase;
+      color:var(--muted);
+      margin:0 0 8px;
+    }
+
+    .scopeWrap{
+      border:1px solid var(--border);
+      border-radius:16px;
+      overflow:hidden;
+      background:#fafafa;
+    }
+    canvas{display:block; width:100%; height:auto;}
+
+    .meters{
+      display:flex;
+      gap:10px;
+      flex-wrap:wrap;
+      margin-top:10px;
+    }
+    .meter{
+      flex:1 1 220px;
+      border:1px solid var(--border);
+      border-radius:14px;
+      padding:10px 12px;
+      background:#fff;
+    }
+    .bar{
+      height:12px;
+      border-radius:999px;
+      border:1px solid var(--border);
+      background:#f4f4f4;
+      overflow:hidden;
+      margin-top:8px;
+    }
+    .bar > div{
+      height:100%;
+      width:0%;
+      background:#111;
+    }
+
+    .controls{
+      display:flex;
+      flex-direction:column;
+      gap:10px;
+    }
+    .control{
+      border:1px solid var(--border);
+      border-radius:14px;
+      padding:10px 12px;
+      background:#fff;
+    }
+    .control .row{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:10px;
+      flex-wrap:wrap;
+    }
+    input[type="range"]{width:100%; margin-top:8px;}
+    button{
+      border:1px solid var(--border);
+      background:#fff;
+      padding:10px 14px;
+      border-radius:999px;
+      cursor:pointer;
+      font-weight:700;
+      transition:transform .08s ease, background .12s ease;
+      white-space:nowrap;
+    }
+    button:hover{background:#f6f6f6}
+    button:active{transform:scale(.98)}
+    .rowBtns{
+      display:flex;
+      gap:10px;
+      flex-wrap:wrap;
+      justify-content:space-between;
+      align-items:center;
+      margin-top:10px;
+    }
+    .msg{
+      margin-top:10px;
+      padding:10px 12px;
+      border-radius:14px;
+      border:1px solid var(--border);
+      background:#fff;
+      font-size:14px;
+      display:none;
+    }
+    .msg.ok{border-color: rgba(11,107,58,.35); background:rgba(11,107,58,.06)}
+    .msg.bad{border-color: rgba(138,31,31,.35); background:rgba(138,31,31,.06)}
+
+    .reward{
+      margin-top:10px;
+      padding:12px 12px;
+      border-radius:14px;
+      border:1px solid rgba(11,107,58,.35);
+      background:rgba(11,107,58,.06);
+      display:none;
+      text-align:center;
+      font-weight:800;
+      letter-spacing:.04em;
+    }
+
+    .footerNote{
+      margin-top:10px;
+      font-size:12px;
+      color:rgba(0,0,0,.65);
+      text-align:center;
+    }
+    .kbd{
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      font-size:12px;
+      border:1px solid #d5d5d5;
+      background:#f7f7f7;
+      border-bottom-width:2px;
+      padding:2px 6px;
+      border-radius:8px;
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <h1>Padua Redemption</h1>
+
+    <div class="card" role="application" aria-label="Waveform Decoder Minigame">
+      <div class="topbar">
+        <div class="pill">
+          <div>
+            <div><strong>Quantum Relay</strong> <span class="sub">Waveform Decoder</span></div>
+            <div class="sub">Score: <span id="score">0</span> • Streak: <span id="streak">0</span></div>
+          </div>
+          <div class="sub">Round <span id="round">1</span></div>
+        </div>
+
+        <div class="pill">
+          <div>
+            <div><strong>Stability Window</strong></div>
+            <div class="sub">Time left: <span id="timeLeft">120</span>s</div>
+          </div>
+          <div class="sub mono" id="timerBar" aria-hidden="true">████████████████</div>
+        </div>
+
+        <div class="pill">
+          <div>
+            <div><strong>Objective</strong></div>
+            <div class="sub">Match the target waveform ≥ <span id="goalPct">96</span>%</div>
+          </div>
+          <div class="sub">Similarity: <strong><span id="simPct">0</span>%</strong></div>
+        </div>
+      </div>
+
+      <div class="grid">
+        <!-- Left: Scope -->
+        <div class="panel">
+          <div class="label">Oscilloscope</div>
+          <div class="scopeWrap" aria-label="Waveform display">
+            <canvas id="scope" width="920" height="360"></canvas>
+          </div>
+
+          <div class="meters">
+            <div class="meter">
+              <div><strong>Similarity</strong> <span class="sub">(tuned for playability)</span></div>
+              <div class="bar" aria-hidden="true"><div id="simBar"></div></div>
+              <div class="sub" style="margin-top:8px;">
+                Tip: Use <span class="kbd">R</span> to randomize your dials, <span class="kbd">N</span> for new signal.
+              </div>
+            </div>
+            <div class="meter">
+              <div><strong>Signal Readout</strong> <span class="sub">(target is hidden)</span></div>
+              <div class="sub mono" id="readout" style="margin-top:8px;">LOCK: —</div>
+              <div class="sub" style="margin-top:8px;">
+                Legend: target = dashed • your signal = solid
+              </div>
+            </div>
+          </div>
+
+          <div id="feedback" class="msg"></div>
+          <div id="rewardBox" class="reward"></div>
+        </div>
+
+        <!-- Right: Controls -->
+        <div class="panel">
+          <div class="label">Decoder Controls</div>
+
+          <div class="controls">
+            <div class="control">
+              <div class="row">
+                <div><strong>Frequency</strong> <span class="sub">(Hz)</span></div>
+                <div class="mono"><span id="freqVal">2.50</span></div>
+              </div>
+              <input id="freq" type="range" min="0.5" max="6.0" value="2.5" step="0.01" />
+            </div>
+
+            <div class="control">
+              <div class="row">
+                <div><strong>Amplitude</strong> <span class="sub">(gain)</span></div>
+                <div class="mono"><span id="ampVal">0.70</span></div>
+              </div>
+              <input id="amp" type="range" min="0.2" max="1.0" value="0.7" step="0.01" />
+            </div>
+
+            <div class="control">
+              <div class="row">
+                <div><strong>Phase</strong> <span class="sub">(°)</span></div>
+                <div class="mono"><span id="phaseVal">0</span></div>
+              </div>
+              <input id="phase" type="range" min="0" max="360" value="0" step="1" />
+            </div>
+
+            <div class="control">
+              <div class="row">
+                <div><strong>Distortion</strong> <span class="sub">(harmonics)</span></div>
+                <div class="mono"><span id="distVal">0.20</span></div>
+              </div>
+              <input id="dist" type="range" min="0" max="0.6" value="0.2" step="0.01" />
+            </div>
+
+            <div class="rowBtns">
+              <button id="lockBtn" type="button">Lock Match</button>
+              <button id="randomBtn" type="button">Randomize Dials</button>
+              <button id="newBtn" type="button">New Signal</button>
+              <button id="resetBtn" type="button">Reset Game</button>
+            </div>
+
+            <div class="sub" style="margin-top:6px;">
+              Controls change only <strong>your</strong> waveform. The target waveform is a hidden combination.
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="footerNote">Padua Deep-Space Array • Xeno-Signal Stabilization Module • Single-player</div>
+    </div>
+  </div>
+
+  <script>
+    (() => {
+      // ---------- DOM ----------
+      const canvas = document.getElementById("scope");
+      const ctx = canvas.getContext("2d");
+
+      const freqEl = document.getElementById("freq");
+      const ampEl = document.getElementById("amp");
+      const phaseEl = document.getElementById("phase");
+      const distEl = document.getElementById("dist");
+
+      const freqVal = document.getElementById("freqVal");
+      const ampVal = document.getElementById("ampVal");
+      const phaseVal = document.getElementById("phaseVal");
+      const distVal = document.getElementById("distVal");
+
+      const simPctEl = document.getElementById("simPct");
+      const simBar = document.getElementById("simBar");
+      const goalPctEl = document.getElementById("goalPct");
+
+      const scoreEl = document.getElementById("score");
+      const streakEl = document.getElementById("streak");
+      const roundEl = document.getElementById("round");
+
+      const timeLeftEl = document.getElementById("timeLeft");
+      const timerBarEl = document.getElementById("timerBar");
+
+      const feedbackEl = document.getElementById("feedback");
+      const rewardBoxEl = document.getElementById("rewardBox");
+      const readoutEl = document.getElementById("readout");
+
+      const lockBtn = document.getElementById("lockBtn");
+      const randomBtn = document.getElementById("randomBtn");
+      const newBtn = document.getElementById("newBtn");
+      const resetBtn = document.getElementById("resetBtn");
+
+      // ---------- State ----------
+      const W = canvas.width;
+      const H = canvas.height;
+      const midY = H / 2;
+
+      let score = 0;
+      let streak = 0;
+      let round = 1;
+
+      const ROUND_SECONDS = 120;
+      let timeLeft = ROUND_SECONDS;
+      let timer = null;
+      let solved = false;
+
+      // Keep 96% but make it realistically achievable by tuning similarity curve/weights.
+      const GOAL = 0.96;
+      goalPctEl.textContent = String(Math.round(GOAL * 100));
+
+      let target = null;
+      let frozenSim = null;
+
+      // ---------- Helpers ----------
+      function clamp(n, a, b){ return Math.max(a, Math.min(b, n)); }
+
+      function showMsg(type, text){
+        feedbackEl.style.display = "block";
+        feedbackEl.className = "msg " + (type === "ok" ? "ok" : "bad");
+        feedbackEl.textContent = text;
+      }
+      function hideMsg(){
+        feedbackEl.style.display = "none";
+        feedbackEl.textContent = "";
+        feedbackEl.className = "msg";
+      }
+
+      function showReward(){
+        const words = ["Congrats", "Success", "Bravo"];
+        rewardBoxEl.textContent = words[Math.floor(Math.random() * words.length)];
+        rewardBoxEl.style.display = "block";
+      }
+      function hideReward(){
+        rewardBoxEl.style.display = "none";
+        rewardBoxEl.textContent = "";
+      }
+
+      function setUIValues(){
+        freqVal.textContent = Number(freqEl.value).toFixed(2);
+        ampVal.textContent = Number(ampEl.value).toFixed(2);
+        phaseVal.textContent = String(Math.round(Number(phaseEl.value)));
+        distVal.textContent = Number(distEl.value).toFixed(2);
+      }
+
+      function renderTimerBar(){
+        const blocks = 16;
+        const filled = clamp(Math.round((timeLeft / ROUND_SECONDS) * blocks), 0, blocks);
+        timerBarEl.textContent = "█".repeat(filled) + "░".repeat(blocks - filled);
+      }
+
+      function startTimer(){
+        stopTimer();
+        timeLeft = ROUND_SECONDS;
+        timeLeftEl.textContent = String(timeLeft);
+        renderTimerBar();
+        timer = setInterval(() => {
+          if (solved) return;
+          timeLeft -= 1;
+          timeLeftEl.textContent = String(timeLeft);
+          renderTimerBar();
+          if (timeLeft <= 0){
+            timeLeft = 0;
+            timeLeftEl.textContent = "0";
+            renderTimerBar();
+            stopTimer();
+            failRound("Signal collapsed. New intercept required.");
+          }
+        }, 1000);
+      }
+
+      function stopTimer(){
+        if (timer) clearInterval(timer);
+        timer = null;
+      }
+
+      // Wave model (same as earlier): base sine + harmonic distortion, with phase.
+      function waveAt(t, p){
+        const phi = (p.phaseDeg * Math.PI) / 180;
+        const base = Math.sin(2 * Math.PI * p.freq * t + phi);
+        const harm = Math.sin(2 * Math.PI * (2 * p.freq) * t + phi * 1.7);
+        return p.amp * (base + p.dist * harm);
+      }
+
+      function sampleWave(p, n=520){
+        const out = new Array(n);
+        for (let i = 0; i < n; i++){
+          const t = i / (n - 1);
+          out[i] = waveAt(t, p);
+        }
+        return out;
+      }
+
+      // Circular phase difference in [0..180]
+      function phaseDiffDeg(a, b){
+        const d = Math.abs(a - b) % 360;
+        return d > 180 ? 360 - d : d;
+      }
+
+      // Similarity based on parameter closeness (freq + amp + phase + distortion)
+      // Tuned so 96% is *not trivial* but definitely achievable.
+      function similarityParams(targetP, playerP){
+        const freqRange = 6.0 - 0.5;   // 5.5
+        const ampRange  = 1.0 - 0.2;   // 0.8
+        const distRange = 0.6 - 0.0;   // 0.6
+        const phaseRange = 180;        // we use shortest distance 0..180
+
+        const df = Math.abs(playerP.freq - targetP.freq) / freqRange;
+        const da = Math.abs(playerP.amp  - targetP.amp)  / ampRange;
+        const dp = phaseDiffDeg(playerP.phaseDeg, targetP.phaseDeg) / phaseRange;
+        const dd = Math.abs(playerP.dist - targetP.dist) / distRange;
+
+        // Weights: freq/phase matter most to shape alignment; distortion moderate; amp lighter.
+        // (These are balanced to keep it challenging but reachable.)
+        const wF = 0.38, wP = 0.30, wD = 0.20, wA = 0.12;
+
+        const dist = Math.sqrt(
+          wF * df*df +
+          wP * dp*dp +
+          wD * dd*dd +
+          wA * da*da
+        );
+
+        // Curve: higher k -> stricter. Lower k -> easier.
+        // This is set so you need to be pretty close on most dials to hit 96%.
+        const k = 4.6;
+        const sim = Math.exp(-k * dist);
+
+        return clamp(sim, 0, 1);
+      }
+
+      function getPlayerParams(){
+        return {
+          freq: Number(freqEl.value),
+          amp: Number(ampEl.value),
+          phaseDeg: Number(phaseEl.value),
+          dist: Number(distEl.value),
+        };
+      }
+
+      function randomTarget(){
+        const rnd = (a,b) => a + Math.random() * (b - a);
+        return {
+          freq: rnd(0.8, 5.6),
+          amp: rnd(0.3, 0.95),
+          phaseDeg: rnd(0, 360),
+          dist: rnd(0.00, 0.55),
+        };
+      }
+
+      function randomizePlayer(){
+        const rnd = (a,b) => a + Math.random() * (b - a);
+        freqEl.value = String(rnd(0.5, 6.0));
+        ampEl.value = String(rnd(0.2, 1.0));
+        phaseEl.value = String(Math.round(rnd(0, 360)));
+        distEl.value = String(rnd(0, 0.6));
+        setUIValues();
+      }
+
+      // ---------- Drawing ----------
+      function clear(){
+        ctx.clearRect(0,0,W,H);
+        ctx.save();
+        ctx.fillStyle = "#fafafa";
+        ctx.fillRect(0,0,W,H);
+
+        ctx.strokeStyle = "rgba(0,0,0,0.08)";
+        ctx.lineWidth = 1;
+        const stepX = 46;
+        const stepY = 36;
+        for (let x = 0; x <= W; x += stepX){
+          ctx.beginPath(); ctx.moveTo(x,0); ctx.lineTo(x,H); ctx.stroke();
+        }
+        for (let y = 0; y <= H; y += stepY){
+          ctx.beginPath(); ctx.moveTo(0,y); ctx.lineTo(W,y); ctx.stroke();
+        }
+
+        ctx.strokeStyle = "rgba(0,0,0,0.18)";
+        ctx.beginPath(); ctx.moveTo(0, midY); ctx.lineTo(W, midY); ctx.stroke();
+        ctx.restore();
+      }
+
+      function drawWave(samples, opts){
+        const scaleY = H * 0.34;
+        ctx.save();
+        ctx.lineWidth = opts.width ?? 3;
+        ctx.strokeStyle = opts.stroke ?? "#111";
+        ctx.setLineDash(opts.dash ?? []);
+        ctx.beginPath();
+        for (let i = 0; i < samples.length; i++){
+          const x = (i / (samples.length - 1)) * W;
+          const y = midY - samples[i] * scaleY;
+          if (i === 0) ctx.moveTo(x,y);
+          else ctx.lineTo(x,y);
+        }
+        ctx.stroke();
+        ctx.restore();
+      }
+
+      function render(){
+        clear();
+
+        const player = getPlayerParams();
+        const sTarget = sampleWave(target);
+        const sPlayer = sampleWave(player);
+
+        drawWave(sTarget, { stroke: "rgba(0,0,0,0.55)", width: 3, dash: [10,8] });
+        drawWave(sPlayer, { stroke: "#111", width: 3 });
+
+        const sim = (frozenSim !== null) ? frozenSim : similarityParams(target, player);
+
+        const pct = Math.round(sim * 100);
+        simPctEl.textContent = String(pct);
+        simBar.style.width = `${pct}%`;
+
+        const lock = sim >= GOAL ? "STABLE" : "UNSTABLE";
+        readoutEl.textContent = `LOCK: ${lock} • Δ=${(100 - pct)} • window=${timeLeft}s`;
+      }
+
+      // ---------- Game flow ----------
+      function pointsForWin(sim){
+        const base = 90;
+        const timeBonus = timeLeft; // up to 120
+        const qualityBonus = Math.round((sim - GOAL) * 1100);
+        const streakBonus = Math.min(streak * 12, 150);
+        return Math.max(10, base + timeBonus + qualityBonus + streakBonus);
+      }
+
+      function winRound(sim){
+        if (solved) return;
+        solved = true;
+        stopTimer();
+
+        frozenSim = sim;
+        const pts = pointsForWin(sim);
+        score += pts;
+        streak += 1;
+
+        scoreEl.textContent = String(score);
+        streakEl.textContent = String(streak);
+
+        showMsg("ok", `Signal stabilized. +${pts} points. Press “New Signal” for the next intercept.`);
+        showReward();
+      }
+
+      function failRound(reason){
+        if (solved) return;
+        solved = true;
+        stopTimer();
+        frozenSim = null;
+        streak = 0;
+        streakEl.textContent = "0";
+        showMsg("bad", reason);
+      }
+
+      function newSignal(){
+        solved = false;
+        frozenSim = null;
+        hideMsg();
+        hideReward();
+
+        round += 1;
+        roundEl.textContent = String(round);
+
+        target = randomTarget();
+        startTimer();
+        render();
+      }
+
+      function resetGame(){
+        score = 0;
+        streak = 0;
+        round = 1;
+        scoreEl.textContent = "0";
+        streakEl.textContent = "0";
+        roundEl.textContent = "1";
+
+        solved = false;
+        frozenSim = null;
+        hideMsg();
+        hideReward();
+
+        target = randomTarget();
+        randomizePlayer();
+        startTimer();
+        render();
+      }
+
+      function lockMatch(){
+        if (solved) return;
+
+        const player = getPlayerParams();
+        const sim = similarityParams(target, player);
+
+        if (sim >= GOAL) winRound(sim);
+        else showMsg("bad", `Lock failed. Similarity is ${Math.round(sim*100)}% (need ${Math.round(GOAL*100)}%).`);
+      }
+
+      // ---------- Events ----------
+      function onControl(){
+        if (solved) return;
+        setUIValues();
+        render();
+      }
+      [freqEl, ampEl, phaseEl, distEl].forEach(el => el.addEventListener("input", onControl));
+
+      lockBtn.addEventListener("click", lockMatch);
+      randomBtn.addEventListener("click", () => {
+        if (!solved){ randomizePlayer(); render(); }
+      });
+      newBtn.addEventListener("click", newSignal);
+      resetBtn.addEventListener("click", resetGame);
+
+      window.addEventListener("keydown", (e) => {
+        if (e.key === "Enter") lockMatch();
+        if (e.key === "r" || e.key === "R") {
+          if (!solved){ randomizePlayer(); render(); }
+        }
+        if (e.key === "n" || e.key === "N") newSignal();
+      });
+
+      // ---------- Init ----------
+      target = randomTarget();
+      setUIValues();
+      startTimer();
+      render();
+
+      setInterval(() => { render(); }, 140);
+    })();
+  </script>
+</body>
+</html>
+
+
+
