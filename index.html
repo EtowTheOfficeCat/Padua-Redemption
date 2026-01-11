@@ -6,41 +6,122 @@
   <title>Padua Redemption</title>
   <style>
     :root{
-      --bg:#7a7a7a;          /* page grey */
-      --panel:#f3f3f3;
-      --ink:#141414;
-      --muted:#5a5a5a;
-      --border:#cfcfcf;
-      --shadow:rgba(0,0,0,.18);
-      --good:#0b6b3a;
-      --bad:#8a1f1f;
+      /* Sci-fi palette */
+      --bg0:#05070c;
+      --bg1:#070b12;
+      --panel: rgba(10, 16, 26, 0.72);
+      --panel2: rgba(8, 12, 20, 0.75);
+      --border: rgba(110, 240, 255, 0.22);
+      --border2: rgba(180, 120, 255, 0.18);
+      --text: rgba(235, 250, 255, 0.92);
+      --muted: rgba(235, 250, 255, 0.62);
+
+      --cyan: rgba(110, 240, 255, 0.95);
+      --purple: rgba(180, 120, 255, 0.95);
+      --good: rgba(120, 255, 200, 0.95);
+      --bad: rgba(255, 120, 140, 0.95);
+
+      --shadow: rgba(0,0,0,0.55);
+      --glowC: rgba(110, 240, 255, 0.25);
+      --glowP: rgba(180, 120, 255, 0.20);
     }
+
     *{box-sizing:border-box}
+    html, body { height: 100%; }
     body{
       margin:0;
       min-height:100vh;
       display:grid;
       place-items:center;
-      padding:24px;
-      background:var(--bg);
-      font-family:system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif;
-      color:var(--ink);
+      padding:28px;
+      color:var(--text);
+      font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif;
+      background:
+        radial-gradient(1200px 700px at 20% 15%, rgba(110,240,255,0.12), transparent 55%),
+        radial-gradient(1000px 650px at 80% 30%, rgba(180,120,255,0.10), transparent 60%),
+        linear-gradient(180deg, var(--bg0), var(--bg1));
+      overflow-x:hidden;
+      position:relative;
     }
-    .wrap{width:min(980px,100%); text-align:center;}
+
+    /* animated grid glow */
+    body::before{
+      content:"";
+      position:fixed;
+      inset:-40px;
+      background:
+        linear-gradient(rgba(110,240,255,0.05) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(110,240,255,0.04) 1px, transparent 1px);
+      background-size: 44px 44px, 44px 44px;
+      transform: perspective(700px) rotateX(55deg) translateY(-140px);
+      transform-origin: top;
+      filter: blur(0.2px);
+      opacity:0.35;
+      pointer-events:none;
+      animation: drift 12s linear infinite;
+    }
+    @keyframes drift{
+      from { background-position: 0 0, 0 0; }
+      to   { background-position: 0 176px, 176px 0; }
+    }
+
+    /* scanlines */
+    body::after{
+      content:"";
+      position:fixed;
+      inset:0;
+      background: repeating-linear-gradient(
+        to bottom,
+        rgba(255,255,255,0.028),
+        rgba(255,255,255,0.028) 1px,
+        transparent 1px,
+        transparent 6px
+      );
+      opacity:0.10;
+      mix-blend-mode: overlay;
+      pointer-events:none;
+    }
+
+    .wrap{width:min(1040px,100%); text-align:center;}
     h1{
-      margin:0 0 14px;
-      font-size:clamp(28px,4vw,42px);
-      letter-spacing:.6px;
-      text-shadow:0 1px 0 rgba(255,255,255,.2);
+      margin: 0 0 16px;
+      font-size: clamp(30px, 4.4vw, 52px);
+      letter-spacing: .12em;
+      text-transform: uppercase;
+      font-weight: 800;
+      color: var(--text);
+      text-shadow:
+        0 0 18px rgba(110,240,255,0.18),
+        0 0 28px rgba(180,120,255,0.12);
     }
+
     .card{
-      background:var(--panel);
-      border:1px solid var(--border);
-      border-radius:18px;
-      box-shadow:0 10px 30px var(--shadow);
-      padding:18px;
+      background: linear-gradient(180deg, rgba(10,16,26,0.78), rgba(7,10,16,0.72));
+      border: 1px solid rgba(110,240,255,0.18);
+      border-radius: 18px;
+      box-shadow:
+        0 18px 60px rgba(0,0,0,0.55),
+        0 0 0 1px rgba(180,120,255,0.10) inset;
+      padding: 18px;
       text-align:left;
+      position:relative;
+      overflow:hidden;
     }
+
+    /* subtle inner glow edges */
+    .card::before{
+      content:"";
+      position:absolute;
+      inset:0;
+      border-radius: 18px;
+      pointer-events:none;
+      box-shadow:
+        0 0 0 1px rgba(110,240,255,0.12) inset,
+        0 0 24px rgba(110,240,255,0.08) inset,
+        0 0 28px rgba(180,120,255,0.06) inset;
+      opacity:0.9;
+    }
+
     .topbar{
       display:flex;
       gap:12px;
@@ -48,47 +129,63 @@
       align-items:stretch;
       justify-content:space-between;
       margin-bottom:12px;
+      position:relative;
+      z-index:1;
     }
+
     .pill{
-      flex:1 1 260px;
-      background:#fff;
-      border:1px solid var(--border);
-      border-radius:14px;
-      padding:10px 12px;
-      min-height:54px;
+      flex:1 1 280px;
+      background: linear-gradient(180deg, rgba(10,16,26,0.70), rgba(8,12,20,0.62));
+      border: 1px solid rgba(110,240,255,0.16);
+      border-radius: 16px;
+      padding: 12px 12px;
+      min-height: 62px;
       display:flex;
       align-items:center;
       justify-content:space-between;
-      gap:10px;
+      gap:12px;
+      box-shadow:
+        0 0 0 1px rgba(180,120,255,0.08) inset,
+        0 12px 28px rgba(0,0,0,0.25);
     }
-    .sub{color:var(--muted); font-size:13px}
-    .mono{font-family:ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,"Liberation Mono","Courier New",monospace;}
+
+    .sub{ color: var(--muted); font-size: 13px; }
+    .mono{ font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace; }
+
     .grid{
       display:grid;
       grid-template-columns: 1.25fr 0.75fr;
       gap:12px;
+      position:relative;
+      z-index:1;
     }
-    @media (max-width: 920px){ .grid{grid-template-columns:1fr;} }
+    @media (max-width: 980px){ .grid{grid-template-columns:1fr;} }
 
     .panel{
-      background:#fff;
-      border:1px solid var(--border);
-      border-radius:16px;
-      padding:14px;
+      background: linear-gradient(180deg, rgba(10,16,26,0.72), rgba(8,12,20,0.64));
+      border: 1px solid rgba(110,240,255,0.15);
+      border-radius: 18px;
+      padding: 14px;
+      box-shadow: 0 14px 32px rgba(0,0,0,0.26);
     }
+
     .label{
-      font-size:12px;
-      letter-spacing:.12em;
+      font-size: 12px;
+      letter-spacing:.22em;
       text-transform:uppercase;
-      color:var(--muted);
-      margin:0 0 8px;
+      color: rgba(235,250,255,0.70);
+      margin:0 0 10px;
     }
 
     .scopeWrap{
-      border:1px solid var(--border);
-      border-radius:16px;
+      border: 1px solid rgba(110,240,255,0.16);
+      border-radius: 16px;
       overflow:hidden;
-      background:#fafafa;
+      background: radial-gradient(800px 340px at 50% 20%, rgba(110,240,255,0.07), transparent 70%),
+                  rgba(5,8,12,0.9);
+      box-shadow:
+        0 0 0 1px rgba(180,120,255,0.08) inset,
+        0 0 28px rgba(110,240,255,0.08);
     }
     canvas{display:block; width:100%; height:auto;}
 
@@ -99,24 +196,27 @@
       margin-top:10px;
     }
     .meter{
-      flex:1 1 220px;
-      border:1px solid var(--border);
-      border-radius:14px;
-      padding:10px 12px;
-      background:#fff;
+      flex:1 1 240px;
+      border: 1px solid rgba(110,240,255,0.14);
+      border-radius: 16px;
+      padding: 10px 12px;
+      background: rgba(6,10,16,0.60);
+      box-shadow: 0 0 0 1px rgba(180,120,255,0.06) inset;
     }
+
     .bar{
-      height:12px;
-      border-radius:999px;
-      border:1px solid var(--border);
-      background:#f4f4f4;
+      height: 12px;
+      border-radius: 999px;
+      border: 1px solid rgba(110,240,255,0.14);
+      background: rgba(255,255,255,0.05);
       overflow:hidden;
       margin-top:8px;
     }
     .bar > div{
       height:100%;
       width:0%;
-      background:#111;
+      background: linear-gradient(90deg, rgba(110,240,255,0.95), rgba(180,120,255,0.95));
+      box-shadow: 0 0 14px rgba(110,240,255,0.22);
     }
 
     .controls{
@@ -125,10 +225,11 @@
       gap:10px;
     }
     .control{
-      border:1px solid var(--border);
-      border-radius:14px;
-      padding:10px 12px;
-      background:#fff;
+      border: 1px solid rgba(110,240,255,0.14);
+      border-radius: 16px;
+      padding: 10px 12px;
+      background: rgba(6,10,16,0.60);
+      box-shadow: 0 0 0 1px rgba(180,120,255,0.06) inset;
     }
     .control .row{
       display:flex;
@@ -137,19 +238,40 @@
       gap:10px;
       flex-wrap:wrap;
     }
-    input[type="range"]{width:100%; margin-top:8px;}
+
+    /* futuristic sliders */
+    input[type="range"]{
+      width:100%;
+      margin-top:10px;
+      accent-color: rgba(110,240,255,0.9);
+    }
+
+    /* buttons */
     button{
-      border:1px solid var(--border);
-      background:#fff;
-      padding:10px 14px;
-      border-radius:999px;
+      border: 1px solid rgba(110,240,255,0.18);
+      background: linear-gradient(180deg, rgba(18,28,44,0.75), rgba(8,12,20,0.70));
+      color: var(--text);
+      padding: 10px 14px;
+      border-radius: 999px;
       cursor:pointer;
-      font-weight:700;
-      transition:transform .08s ease, background .12s ease;
+      font-weight: 750;
+      letter-spacing:.06em;
+      text-transform: uppercase;
+      font-size: 12px;
+      transition: transform .08s ease, filter .12s ease, box-shadow .12s ease;
+      box-shadow:
+        0 0 0 1px rgba(180,120,255,0.06) inset,
+        0 10px 18px rgba(0,0,0,0.24);
       white-space:nowrap;
     }
-    button:hover{background:#f6f6f6}
-    button:active{transform:scale(.98)}
+    button:hover{
+      filter: brightness(1.12);
+      box-shadow:
+        0 0 0 1px rgba(180,120,255,0.10) inset,
+        0 0 22px rgba(110,240,255,0.10);
+    }
+    button:active{ transform: scale(.98); }
+
     .rowBtns{
       display:flex;
       gap:10px;
@@ -158,44 +280,58 @@
       align-items:center;
       margin-top:10px;
     }
+
     .msg{
       margin-top:10px;
-      padding:10px 12px;
-      border-radius:14px;
-      border:1px solid var(--border);
-      background:#fff;
-      font-size:14px;
+      padding:12px 12px;
+      border-radius: 16px;
+      border: 1px solid rgba(110,240,255,0.14);
+      background: rgba(6,10,16,0.60);
+      font-size: 14px;
       display:none;
+      box-shadow: 0 0 0 1px rgba(180,120,255,0.06) inset;
     }
-    .msg.ok{border-color: rgba(11,107,58,.35); background:rgba(11,107,58,.06)}
-    .msg.bad{border-color: rgba(138,31,31,.35); background:rgba(138,31,31,.06)}
+    .msg.ok{
+      border-color: rgba(120,255,200,0.22);
+      box-shadow: 0 0 22px rgba(120,255,200,0.12);
+    }
+    .msg.bad{
+      border-color: rgba(255,120,140,0.24);
+      box-shadow: 0 0 22px rgba(255,120,140,0.12);
+    }
 
     .reward{
       margin-top:10px;
-      padding:12px 12px;
-      border-radius:14px;
-      border:1px solid rgba(11,107,58,.35);
-      background:rgba(11,107,58,.06);
+      padding:14px 12px;
+      border-radius: 16px;
+      border: 1px solid rgba(120,255,200,0.25);
+      background: rgba(10,20,16,0.62);
       display:none;
       text-align:center;
-      font-weight:800;
-      letter-spacing:.04em;
+      font-weight: 900;
+      letter-spacing: .16em;
+      text-transform: uppercase;
+      box-shadow:
+        0 0 30px rgba(120,255,200,0.14),
+        0 0 0 1px rgba(180,120,255,0.06) inset;
     }
 
     .footerNote{
       margin-top:10px;
       font-size:12px;
-      color:rgba(0,0,0,.65);
+      color: rgba(235,250,255,0.55);
       text-align:center;
+      letter-spacing:.08em;
+      text-transform: uppercase;
     }
     .kbd{
       font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
-      font-size:12px;
-      border:1px solid #d5d5d5;
-      background:#f7f7f7;
-      border-bottom-width:2px;
-      padding:2px 6px;
-      border-radius:8px;
+      font-size: 12px;
+      border: 1px solid rgba(110,240,255,0.18);
+      background: rgba(255,255,255,0.06);
+      padding: 2px 7px;
+      border-radius: 10px;
+      box-shadow: 0 0 12px rgba(110,240,255,0.10);
     }
   </style>
 </head>
@@ -231,7 +367,6 @@
       </div>
 
       <div class="grid">
-        <!-- Left: Scope -->
         <div class="panel">
           <div class="label">Oscilloscope</div>
           <div class="scopeWrap" aria-label="Waveform display">
@@ -243,7 +378,7 @@
               <div><strong>Similarity</strong> <span class="sub">(tuned for playability)</span></div>
               <div class="bar" aria-hidden="true"><div id="simBar"></div></div>
               <div class="sub" style="margin-top:8px;">
-                Tip: Use <span class="kbd">R</span> to randomize your dials, <span class="kbd">N</span> for new signal.
+                Tip: <span class="kbd">R</span> randomize • <span class="kbd">N</span> new signal • <span class="kbd">Enter</span> lock
               </div>
             </div>
             <div class="meter">
@@ -259,7 +394,6 @@
           <div id="rewardBox" class="reward"></div>
         </div>
 
-        <!-- Right: Controls -->
         <div class="panel">
           <div class="label">Decoder Controls</div>
 
@@ -364,7 +498,6 @@
       let timer = null;
       let solved = false;
 
-      // Keep 96% but make it realistically achievable by tuning similarity curve/weights.
       const GOAL = 0.96;
       goalPctEl.textContent = String(Math.round(GOAL * 100));
 
@@ -433,7 +566,7 @@
         timer = null;
       }
 
-      // Wave model (same as earlier): base sine + harmonic distortion, with phase.
+      // Wave model: base sine + harmonic distortion, with phase.
       function waveAt(t, p){
         const phi = (p.phaseDeg * Math.PI) / 180;
         const base = Math.sin(2 * Math.PI * p.freq * t + phi);
@@ -450,42 +583,28 @@
         return out;
       }
 
-      // Circular phase difference in [0..180]
       function phaseDiffDeg(a, b){
         const d = Math.abs(a - b) % 360;
         return d > 180 ? 360 - d : d;
       }
 
-      // Similarity based on parameter closeness (freq + amp + phase + distortion)
-      // Tuned so 96% is *not trivial* but definitely achievable.
+      // Similarity based on parameter closeness. Tuned so 96% is achievable but not trivial.
       function similarityParams(targetP, playerP){
         const freqRange = 6.0 - 0.5;   // 5.5
         const ampRange  = 1.0 - 0.2;   // 0.8
         const distRange = 0.6 - 0.0;   // 0.6
-        const phaseRange = 180;        // we use shortest distance 0..180
+        const phaseRange = 180;        // shortest distance 0..180
 
         const df = Math.abs(playerP.freq - targetP.freq) / freqRange;
         const da = Math.abs(playerP.amp  - targetP.amp)  / ampRange;
         const dp = phaseDiffDeg(playerP.phaseDeg, targetP.phaseDeg) / phaseRange;
         const dd = Math.abs(playerP.dist - targetP.dist) / distRange;
 
-        // Weights: freq/phase matter most to shape alignment; distortion moderate; amp lighter.
-        // (These are balanced to keep it challenging but reachable.)
         const wF = 0.38, wP = 0.30, wD = 0.20, wA = 0.12;
+        const dist = Math.sqrt(wF*df*df + wP*dp*dp + wD*dd*dd + wA*da*da);
 
-        const dist = Math.sqrt(
-          wF * df*df +
-          wP * dp*dp +
-          wD * dd*dd +
-          wA * da*da
-        );
-
-        // Curve: higher k -> stricter. Lower k -> easier.
-        // This is set so you need to be pretty close on most dials to hit 96%.
-        const k = 4.6;
-        const sim = Math.exp(-k * dist);
-
-        return clamp(sim, 0, 1);
+        const k = 4.6; // tweak: lower = easier, higher = harder
+        return clamp(Math.exp(-k * dist), 0, 1);
       }
 
       function getPlayerParams(){
@@ -520,10 +639,13 @@
       function clear(){
         ctx.clearRect(0,0,W,H);
         ctx.save();
-        ctx.fillStyle = "#fafafa";
+
+        // oscilloscope background glow + grid
+        ctx.fillStyle = "rgba(5,8,12,0.92)";
         ctx.fillRect(0,0,W,H);
 
-        ctx.strokeStyle = "rgba(0,0,0,0.08)";
+        // grid
+        ctx.strokeStyle = "rgba(110,240,255,0.06)";
         ctx.lineWidth = 1;
         const stepX = 46;
         const stepY = 36;
@@ -534,8 +656,17 @@
           ctx.beginPath(); ctx.moveTo(0,y); ctx.lineTo(W,y); ctx.stroke();
         }
 
-        ctx.strokeStyle = "rgba(0,0,0,0.18)";
+        // midline
+        ctx.strokeStyle = "rgba(110,240,255,0.12)";
         ctx.beginPath(); ctx.moveTo(0, midY); ctx.lineTo(W, midY); ctx.stroke();
+
+        // vignette
+        const g = ctx.createRadialGradient(W*0.5, H*0.35, 80, W*0.5, H*0.5, Math.max(W,H));
+        g.addColorStop(0, "rgba(110,240,255,0.06)");
+        g.addColorStop(1, "rgba(0,0,0,0.25)");
+        ctx.fillStyle = g;
+        ctx.fillRect(0,0,W,H);
+
         ctx.restore();
       }
 
@@ -543,8 +674,10 @@
         const scaleY = H * 0.34;
         ctx.save();
         ctx.lineWidth = opts.width ?? 3;
-        ctx.strokeStyle = opts.stroke ?? "#111";
+        ctx.strokeStyle = opts.stroke ?? "#eafaff";
         ctx.setLineDash(opts.dash ?? []);
+        ctx.shadowBlur = opts.shadowBlur ?? 0;
+        ctx.shadowColor = opts.shadowColor ?? "transparent";
         ctx.beginPath();
         for (let i = 0; i < samples.length; i++){
           const x = (i / (samples.length - 1)) * W;
@@ -563,12 +696,27 @@
         const sTarget = sampleWave(target);
         const sPlayer = sampleWave(player);
 
-        drawWave(sTarget, { stroke: "rgba(0,0,0,0.55)", width: 3, dash: [10,8] });
-        drawWave(sPlayer, { stroke: "#111", width: 3 });
+        // target (dashed, slightly dim)
+        drawWave(sTarget, {
+          stroke: "rgba(235,250,255,0.55)",
+          width: 2.5,
+          dash: [10,8],
+          shadowBlur: 8,
+          shadowColor: "rgba(180,120,255,0.10)"
+        });
+
+        // player (solid, brighter)
+        drawWave(sPlayer, {
+          stroke: "rgba(110,240,255,0.95)",
+          width: 3.0,
+          dash: [],
+          shadowBlur: 14,
+          shadowColor: "rgba(110,240,255,0.22)"
+        });
 
         const sim = (frozenSim !== null) ? frozenSim : similarityParams(target, player);
-
         const pct = Math.round(sim * 100);
+
         simPctEl.textContent = String(pct);
         simBar.style.width = `${pct}%`;
 
@@ -647,7 +795,6 @@
 
       function lockMatch(){
         if (solved) return;
-
         const player = getPlayerParams();
         const sim = similarityParams(target, player);
 
@@ -689,6 +836,7 @@
   </script>
 </body>
 </html>
+
 
 
 
